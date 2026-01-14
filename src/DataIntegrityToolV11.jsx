@@ -760,10 +760,11 @@ export default function DataIntegrityToolV11() {
 
       {/* Main Content */}
       <div className="flex-1 p-4 overflow-auto">
-        {/* File Upload Section */}
-        {articles.length === 0 && (
+        {/* File Upload Section - Always visible until all files loaded */}
+        {(articles.length === 0 || vendors.length === 0 || stockLots.length === 0 || boms.length === 0) && (
           <div className="bg-white rounded-lg shadow p-6 mb-4">
             <h2 className="text-lg font-bold mb-4 text-gray-800">Import MRPeasy Data Files</h2>
+            <p className="text-sm text-gray-600 mb-4">Please upload all 4 CSV files to run the full analysis.</p>
             <div className="grid grid-cols-4 gap-4">
               {[
                 { label: 'Articles', setter: setArticles, data: articles },
@@ -771,20 +772,29 @@ export default function DataIntegrityToolV11() {
                 { label: 'Stock Lots', setter: setStockLots, data: stockLots },
                 { label: 'BOMs (Parts)', setter: setBoms, data: boms },
               ].map(item => (
-                <div key={item.label} className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                  <Upload className="mx-auto mb-2 text-gray-400" size={24} />
+                <div key={item.label} className={`border-2 rounded-lg p-4 text-center ${item.data.length > 0 ? 'border-green-500 bg-green-50' : 'border-dashed border-gray-300'}`}>
+                  {item.data.length > 0 ? (
+                    <Check className="mx-auto mb-2 text-green-600" size={24} />
+                  ) : (
+                    <Upload className="mx-auto mb-2 text-gray-400" size={24} />
+                  )}
                   <p className="text-sm font-medium mb-2">{item.label}</p>
                   <input
                     type="file"
                     accept=".csv"
                     onChange={handleFileUpload(item.setter, item.label)}
-                    className="text-xs"
+                    className="text-xs w-full"
                   />
                   {item.data.length > 0 && (
-                    <p className="text-xs text-green-600 mt-2">✓ {item.data.length} records</p>
+                    <p className="text-xs text-green-600 mt-2 font-bold">✓ {item.data.length} records</p>
                   )}
                 </div>
               ))}
+            </div>
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-500">
+                Uploaded: {[articles, vendors, stockLots, boms].filter(d => d.length > 0).length} of 4 files
+              </p>
             </div>
           </div>
         )}
